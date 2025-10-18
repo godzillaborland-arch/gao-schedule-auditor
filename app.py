@@ -12,7 +12,7 @@ st.set_page_config(
 from pathlib import Path
 
 # --- Display Quantum View Point Logo ---
-logo_path = Path("assets/gao_logo.png.png")
+logo_path = Path("assets/gao_logo.png")
 if logo_path.exists():
     st.image(str(logo_path), width=200)
 else:
