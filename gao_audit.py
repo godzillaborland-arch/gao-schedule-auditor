@@ -163,7 +163,16 @@ def load_schedule(path, sheet_name="Task_Table1"):
 
 # --- Audit ---
 def run_audit(df):
-    uid = df["UID"].tolist()
+    # --- uid = df["UID"].tolist()
+    # --- Safer UID column detection ---
+possible_uid_columns = ["UID", "Unique ID", "UniqueID", "Task UID", "ID"]
+uid_col = next((col for col in df.columns if col.strip() in possible_uid_columns), None)
+
+if uid_col:
+    uid = df[uid_col].tolist()
+else:
+    raise ValueError(f"Expected UID column not found. Found columns: {list(df.columns)}")
+
     name = df["Name"].astype(str).tolist()
     preds = df["Predecessors"].astype(str).tolist()
     succs = df["Successors"].astype(str).tolist()
