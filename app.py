@@ -1,39 +1,82 @@
 import streamlit as st
 import pandas as pd
-from gao_audit import run_audit, write_report, load_schedule
-import tempfile, os
+from io import BytesIO
+from gao_audit import run_audit  # your main logic
 
-st.set_page_config(page_title="GAO Schedule Auditor", page_icon="📊", layout="wide")
-st.title("📘 GAO Schedule Quality Auditor")
-st.markdown("Upload a Microsoft Project **Excel export (.xlsx)** to generate a GAO-style schedule quality report.")
+# --- Page Config ---
+st.set_page_config(
+    page_title="GAO Schedule Quality Auditor",
+    layout="wide",
+    page_icon="📘"
+)
 
-uploaded_file = st.file_uploader("Upload your schedule file", type=["xlsx"])
+# --- Custom CSS: GAO theme fallback ---
+st.markdown("""
+    <style>
+    /* Backgrounds and Fonts */
+    .main {
+        background-color: #F9FBFC;
+    }
+    h1, h2, h3, h4 {
+        color: #003366;
+        font-weight: 700;
+    }
+    /* Buttons */
+    .stButton>button {
+        background-color: #003366;
+        color: white;
+        border-radius: 6px;
+        border: none;
+        font-weight: bold;
+        padding: 0.6em 1.2em;
+        transition: all 0.2s ease;
+    }
+    .stButton>button:hover {
+        background-color: #00509E;
+    }
+    /* Metrics cards */
+    div[data-testid="stMetricValue"] {
+        color: #003366;
+        font-weight: 600;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- Header Section ---
+st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/US-GovernmentAccountabilityOffice-Logo.svg/2560px-US-GovernmentAccountabilityOffice-Logo.svg.png",
+         width=220)
+st.title("GAO Schedule Quality Auditor")
+st.caption("Automated Schedule Health and Logic Analysis – Powered by Streamlit + Excel")
+
+st.markdown("---")
+
+# --- File Upload ---
+st.subheader("📤 Upload your Microsoft Project Export (.xlsx)")
+uploaded_file = st.file_uploader(
+    "Drag and drop your schedule file or click to browse",
+    type=["xlsx"]
+)
 
 if uploaded_file:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
-        tmp.write(uploaded_file.getbuffer())
-        tmp_path = tmp.name
+    with st.spinner("🔍 Analyzing schedule... please wait"):
+        # Run your GAO audit logic
+        results_df = run_audit(uploaded_file)
 
-    with st.spinner("Running audit... please wait ⏳"):
-        try:
-            df = load_schedule(tmp_path)  # auto-detect sheet or use Task_Table1
-            audit = run_audit(df)
-            output_path = os.path.splitext(tmp_path)[0] + "_Report.xlsx"
-            score, health = write_report(audit, output_path)
+    st.success("✅ Analysis complete!")
+    st.dataframe(results_df)
 
-            st.success("✅ Audit completed successfully!")
-            st.metric("Schedule Health Score", f"{score}/100")
-            st.write("**Project Health:**", health)
+    # Download results
+    output = BytesIO()
+    results_df.to_excel(output, index=False)
+    st.download_button(
+        label="⬇️ Download Full Audit Report",
+        data=output.getvalue(),
+        file_name="GAO_Schedule_Audit_Report.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
-            st.subheader("Summary")
-            st.dataframe(audit["Summary"])
+else:
+    st.info("Please upload a valid Microsoft Project Excel export (.xlsx) to begin.")
 
-            with open(output_path, "rb") as f:
-                st.download_button(
-                    "⬇️ Download Excel Report",
-                    f,
-                    file_name="GAO_Schedule_Audit_Report.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
-        except Exception as e:
-            st.error(f"❌ Error: {str(e)}")
+st.markdown("---")
+st.caption("© 2025 GAO Schedule Quality Auditor | Built with ❤️ using Streamlit")
