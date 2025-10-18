@@ -3,12 +3,12 @@
 # =======================================================
 
 [theme]
-base="light"
-primaryColor="#0033A0"                # Deep GAO blue
-backgroundColor="#FFFFFF"             # White main background
-secondaryBackgroundColor="#F5F6FA"    # Subtle gray panels
-textColor="#1E1E1E"                   # Clean dark text
-font="sans serif"
+base = "light"
+primaryColor = "#003366"  # GAO Blue
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F4F8"
+textColor = "#000000"
+font = "sans serif"
 
 [ui]
 layout="wide"                         # Full-width layout for dashboards
