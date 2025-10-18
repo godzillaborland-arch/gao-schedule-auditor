@@ -9,6 +9,15 @@ st.set_page_config(
     layout="wide",
     page_icon="📘"
 )
+from pathlib import Path
+
+# --- Display Quantum View Point Logo ---
+logo_path = Path("assets/quantum_view_point_logo.png")
+if logo_path.exists():
+    st.image(str(logo_path), width=200)
+else:
+    st.warning("Logo not found. Check path or filename.")
+
 
 # --- Custom CSS: GAO theme fallback ---
 st.markdown("""
