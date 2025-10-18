@@ -1,11 +1,32 @@
 [theme]
+<<<<<<< HEAD
 primaryColor = "#004578"
 backgroundColor = "#ffffff"
 secondaryBackgroundColor = "#f7f9fb"
 textColor = "#000000"
 font = "sans serif"
+=======
+base="light"
+primaryColor="#1e90ff"
+backgroundColor="#ffffff"
+secondaryBackgroundColor="#f5f5f5"
+textColor="#262730"
+font="sans serif"
+>>>>>>> b8201d6 (Add Streamlit UI config and theme)
 
 [server]
 headless = true
 enableCORS = false
 enableXsrfProtection = false
+<<<<<<< HEAD
+=======
+
+[ui]
+layout = "wide"
+
+[client]
+showErrorDetails = true
+
+[browser]
+gatherUsageStats = false
+>>>>>>> b8201d6 (Add Streamlit UI config and theme)
