@@ -6,10 +6,28 @@ import pandas as pd
 import streamlit as st
 
 # Uses your existing audit logic if available
+# --- Safe import for GAO audit logic ---
+
+
 try:
-    from gao_audit import run_audit as RUN_GAO_AUDIT  # expects a function that accepts a DataFrame
+    from gao_audit import run_audit as RUN_GAO_AUDIT
 except Exception:
     RUN_GAO_AUDIT = None
+
+# --- Fallback audit function (for testing or missing imports) ---
+def run_audit(uploaded_file):
+    """
+    Fallback audit logic if gao_audit.run_audit() is unavailable.
+    Returns the first few rows for validation/testing.
+    """
+    try:
+        df = pd.read_excel(uploaded_file)
+        return df.head(5)
+    except Exception as e:
+        import streamlit as st
+        st.error(f"❌ Audit logic failed to run: {e}")
+        return pd.DataFrame()
+
 
 
 # -----------------------------
