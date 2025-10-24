@@ -2,8 +2,23 @@ def run_audit(file):
     import pandas as pd
     import networkx as nx
 
+    def run_audit(file):
+    """
+    Runs GAO audit on either an uploaded file (.xlsx) or a DataFrame.
+    """
+    # ✅ Handle both Excel file and already-loaded DataFrame
+    if isinstance(file, pd.DataFrame):
+        df = file.copy()
+    else:
+        df = pd.read_excel(file)
+
+    # now continue your audit logic below...
+    # e.g., df = normalize_columns(df)
+    ...
+
+
     # --- Load Excel ---
-    df = pd.read_excel(file)
+    # df = pd.read_excel(file)
 
     # --- Normalize field names ---
     df.columns = [c.strip().replace(" ", "_") for c in df.columns]
