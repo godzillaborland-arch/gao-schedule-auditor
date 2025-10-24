@@ -1,40 +1,12 @@
-# =======================================================
-# GAO Schedule Auditor - Streamlit UI Configuration
-# =======================================================
-
 [theme]
-base = "light"
-primaryColor = "#003366"  # GAO Blue
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F0F4F8"
-textColor = "#000000"
-font = "sans serif"
-
-[ui]
-layout="wide"                         # Full-width layout for dashboards
-hideTopBar=false
-showErrorDetails=true
+base="light"
+primaryColor="#003366"
+backgroundColor="#F9FBFC"
+secondaryBackgroundColor="#EAF2F8"
+textColor="#000000"
+font="sans serif"
 
 [server]
-headless=true
-enableCORS=false
-enableXsrfProtection=false
-port=8501
-
-[client]
-toolbarMode="minimal"
-showErrorDetails=true
-
-[browser]
-gatherUsageStats=false
-serverAddress="localhost"
-
-# =======================================================
-# Optional Branding Section
-# =======================================================
-[custom]
-appTitle="GAO Schedule Quality Auditor"
-appSubtitle="Automated Schedule Assessment & Dependency Analysis"
-appFavicon="https://upload.wikimedia.org/wikipedia/commons/2/25/GAO_logo_2021.svg"
-appLogo="https://upload.wikimedia.org/wikipedia/commons/2/25/GAO_logo_2021.svg"
-
+headless = true
+port = 8501
+enableCORS = false
