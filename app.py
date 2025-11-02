@@ -1,91 +1,63 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
-from gao_audit import run_audit  # your main logic
 
-# --- Page Config ---
-st.set_page_config(
-    page_title="GAO Schedule Quality Auditor",
-    layout="wide",
-    page_icon="📘"
-)
-from pathlib import Path
+st.set_page_config(page_title="GAO Schedule Quality Auditor v3", layout="wide")
 
-# --- Display Quantum View Point Logo ---
-logo_path = Path("assets/gao_logo.png")
-if logo_path.exists():
-    st.image(str(logo_path), width=200)
-else:
-    st.warning("Logo not found. Check path or filename.")
+st.title("📘 GAO Schedule Quality Auditor v3")
+st.write("Upload your MS Project Excel export to generate a full GAO-compliant audit report.")
 
+uploaded_file = st.file_uploader("Upload Excel file (.xlsx)", type=["xlsx"], help="Limit 200MB per file • XLSX")
 
-# --- Custom CSS: GAO theme fallback ---
-st.markdown("""
-    <style>
-    /* Backgrounds and Fonts */
-    .main {
-        background-color: #F9FBFC;
-    }
-    h1, h2, h3, h4 {
-        color: #003366;
-        font-weight: 700;
-    }
-    /* Buttons */
-    .stButton>button {
-        background-color: #003366;
-        color: white;
-        border-radius: 6px;
-        border: none;
-        font-weight: bold;
-        padding: 0.6em 1.2em;
-        transition: all 0.2s ease;
-    }
-    .stButton>button:hover {
-        background-color: #00509E;
-    }
-    /* Metrics cards */
-    div[data-testid="stMetricValue"] {
-        color: #003366;
-        font-weight: 600;
-    }
-    </style>
-""", unsafe_allow_html=True)
+def run_audit(df):
+    summary = []
+    if "Total_Slack" not in df.columns:
+        summary.append({"Metric": "Slack Status", "Value": "No Total_Slack column found"})
+        return pd.DataFrame(summary)
 
-# --- Header Section ---
-st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/US-GovernmentAccountabilityOffice-Logo.svg/2560px-US-GovernmentAccountabilityOffice-Logo.svg.png",
-         width=220)
-st.title("GAO Schedule Quality Auditor")
-st.caption("Automated Schedule Health and Logic Analysis – Powered by Streamlit + Excel")
+    df["Total_Slack"] = pd.to_numeric(df["Total_Slack"], errors="coerce")
 
-st.markdown("---")
+    negative_slack = len(df[df["Total_Slack"] < 0])
+    excessive_slack = len(df[df["Total_Slack"] > 60])
+    missing_pred = len(df[df["Predecessors"].isna() | (df["Predecessors"] == "")])
+    missing_succ = len(df[df["Successors"].isna() | (df["Successors"] == "")])
+    constraints = len(df[df["Constraint_Type"].notna() & (df["Constraint_Type"] != "") & (df["Constraint_Type"].str.lower() != "as soon as possible")])
 
-# --- File Upload ---
-st.subheader("📤 Upload your Microsoft Project Export (.xlsx)")
-uploaded_file = st.file_uploader(
-    "Drag and drop your schedule file or click to browse",
-    type=["xlsx"]
-)
+    summary.extend([
+        {"Metric": "Negative Slack", "Value": negative_slack},
+        {"Metric": "Excessive Slack (>60d)", "Value": excessive_slack},
+        {"Metric": "Missing Predecessors", "Value": missing_pred},
+        {"Metric": "Missing Successors", "Value": missing_succ},
+        {"Metric": "Constraints", "Value": constraints}
+    ])
+    return pd.DataFrame(summary)
+
 
 if uploaded_file:
-    with st.spinner("🔍 Analyzing schedule... please wait"):
-        # Run your GAO audit logic
-        results_df = run_audit(uploaded_file)
+    st.info(f"📄 {uploaded_file.name}")
+    run_clicked = st.button("▶️ Run Audit")
 
-    st.success("✅ Analysis complete!")
-    st.dataframe(results_df)
+    if run_clicked:
+        try:
+            with st.spinner("Running GAO audit..."):
+                df = pd.read_excel(uploaded_file)
+                results_df = run_audit(df)
+                st.success("✅ Audit completed successfully!")
+                st.dataframe(results_df, use_container_width=True)
 
-    # Download results
-    output = BytesIO()
-    results_df.to_excel(output, index=False)
-    st.download_button(
-        label="⬇️ Download Full Audit Report",
-        data=output.getvalue(),
-        file_name="GAO_Schedule_Audit_Report.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
+                towrite = BytesIO()
+                results_df.to_excel(towrite, index=False)
+                towrite.seek(0)
+                st.download_button(
+                    label="📥 Download Audit Report (.xlsx)",
+                    data=towrite,
+                    file_name="GAO_Schedule_Audit_Report_v3.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+        except Exception as e:
+            st.error(f"❌ Audit failed: {e}")
 else:
-    st.info("Please upload a valid Microsoft Project Excel export (.xlsx) to begin.")
+    st.info("👆 Upload a valid Microsoft Project schedule (.xlsx) and click **Run Audit**.")
 
 st.markdown("---")
 st.caption("© 2025 GAO Schedule Quality Auditor | Built with ❤️ using Streamlit")
