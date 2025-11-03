@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
+<<<<<<< HEAD
+=======
+from gao_audit_v3 import run_audit  # your main logic
+>>>>>>> 3970491 (Fix negative slack & add smart constraint logic)
 
 st.set_page_config(page_title="GAO Schedule Quality Auditor v3", layout="wide")
 
