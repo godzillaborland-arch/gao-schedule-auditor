@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
-from gao_audit_v3 import run_audit  # main GAO audit logic
+from from gao_audit_app_v3 import run_audit  # main GAO audit logic
 
 st.set_page_config(page_title="GAO Schedule Quality Auditor v3", layout="wide")
 
